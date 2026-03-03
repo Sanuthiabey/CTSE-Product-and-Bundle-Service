@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -14,21 +13,15 @@ var DB *sql.DB
 
 func Connect() {
 
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-
-	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname,
-	)
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		log.Fatal("DATABASE_URL not set")
+	}
 
 	var err error
 
-	for i := 0; i < 30; i++ {
-		DB, err = sql.Open("postgres", connStr)
+	for i := 0; i < 5; i++ {
+		DB, err = sql.Open("postgres", databaseURL)
 		if err != nil {
 			log.Println("Retrying DB connection...")
 			time.Sleep(2 * time.Second)
@@ -37,7 +30,7 @@ func Connect() {
 
 		err = DB.Ping()
 		if err == nil {
-			log.Println("Connected to PostgreSQL")
+			log.Println("Connected to Neon PostgreSQL")
 			break
 		}
 
@@ -49,8 +42,13 @@ func Connect() {
 		log.Fatal("Could not connect to database:", err)
 	}
 
+	createTables()
+}
+
+func createTables() {
+
 	// ------------------------
-	// CREATE PRODUCTS TABLE
+	// PRODUCTS TABLE
 	// ------------------------
 	createProductsTable := `
 	CREATE TABLE IF NOT EXISTS products (
@@ -61,7 +59,7 @@ func Connect() {
 		stock INT
 	);`
 
-	_, err = DB.Exec(createProductsTable)
+	_, err := DB.Exec(createProductsTable)
 	if err != nil {
 		log.Fatal("Failed to create products table:", err)
 	}
@@ -69,7 +67,7 @@ func Connect() {
 	log.Println("Products table ready")
 
 	// ------------------------
-	// CREATE BUNDLES TABLE
+	// BUNDLES TABLE
 	// ------------------------
 	createBundlesTable := `
 	CREATE TABLE IF NOT EXISTS bundles (
@@ -84,7 +82,7 @@ func Connect() {
 	}
 
 	// ------------------------
-	// CREATE BUNDLE_PRODUCTS TABLE
+	// BUNDLE_PRODUCTS TABLE
 	// ------------------------
 	createBundleProductsTable := `
 	CREATE TABLE IF NOT EXISTS bundle_products (
