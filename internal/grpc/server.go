@@ -152,7 +152,7 @@ func StartGRPCServer() {
 	s := grpc.NewServer()
 	pb.RegisterProductServiceServer(s, &server{})
 
-	log.Println("gRPC server running on :50051")
+	log.Println("gRPC server running on :50053")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)

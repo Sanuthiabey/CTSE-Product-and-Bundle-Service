@@ -2,8 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/internal/db"
@@ -20,6 +23,18 @@ func main() {
 	go grpcServer.StartGRPCServer()
 
 	r := gin.Default()
+
+	// ==============================
+	// CORS CONFIG (VERY IMPORTANT)
+	// ==============================
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// ==============================
 	// HEALTH CHECK
@@ -42,10 +57,11 @@ func main() {
 			return
 		}
 
-		_, err := db.DB.Exec(
-			`INSERT INTO products 
+		_, err := db.DB.Exec(`
+			INSERT INTO products 
 			(id, name, description, price, mood, category, image, rating, featured, stock)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+		`,
 			product.ID,
 			product.Name,
 			product.Description,
@@ -71,10 +87,54 @@ func main() {
 	// ==============================
 	r.GET("/products", func(c *gin.Context) {
 
-		rows, err := db.DB.Query(`
-			SELECT id, name, description, price, mood, category, image, rating, featured, stock
-			FROM products
-		`)
+		mood := c.Query("mood")
+		category := c.Query("category")
+		search := c.Query("search")
+		featured := c.Query("featured")
+		sort := c.Query("sort")
+
+		query := `
+        SELECT id, name, description, price, mood, category, image, rating, featured, stock
+        FROM products
+        WHERE 1=1
+    `
+		args := []interface{}{}
+		argID := 1
+
+		if mood != "" {
+			query += " AND LOWER(mood) = LOWER($" + fmt.Sprint(argID) + ")"
+			args = append(args, mood)
+			argID++
+		}
+
+		if category != "" {
+			query += " AND LOWER(category) = LOWER($" + fmt.Sprint(argID) + ")"
+			args = append(args, category)
+			argID++
+		}
+
+		if search != "" {
+			query += " AND (LOWER(name) LIKE LOWER($" + fmt.Sprint(argID) + ") OR LOWER(description) LIKE LOWER($" + fmt.Sprint(argID) + "))"
+			args = append(args, "%"+search+"%")
+			argID++
+		}
+
+		if featured == "true" {
+			query += " AND featured = true"
+		}
+
+		switch sort {
+		case "price-asc":
+			query += " ORDER BY price ASC"
+		case "price-desc":
+			query += " ORDER BY price DESC"
+		case "rating":
+			query += " ORDER BY rating DESC"
+		default:
+			query += " ORDER BY id"
+		}
+
+		rows, err := db.DB.Query(query, args...)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -85,7 +145,6 @@ func main() {
 
 		for rows.Next() {
 			var p models.Product
-
 			err := rows.Scan(
 				&p.ID,
 				&p.Name,
@@ -102,7 +161,6 @@ func main() {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-
 			products = append(products, p)
 		}
 
