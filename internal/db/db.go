@@ -52,13 +52,17 @@ func createTables() {
 	// ------------------------
 	createProductsTable := `
 	CREATE TABLE IF NOT EXISTS products (
-		id TEXT PRIMARY KEY,
-		name TEXT NOT NULL,
-		price DOUBLE PRECISION,
-		mood TEXT,
-		stock INT
-	);`
-
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    price DOUBLE PRECISION,
+    mood TEXT,
+    category TEXT,
+    image TEXT,
+    rating DOUBLE PRECISION DEFAULT 0,
+    featured BOOLEAN DEFAULT FALSE,
+    stock INT
+);`
 	_, err := DB.Exec(createProductsTable)
 	if err != nil {
 		log.Fatal("Failed to create products table:", err)
