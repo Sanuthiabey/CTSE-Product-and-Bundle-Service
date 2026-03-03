@@ -229,6 +229,209 @@ func main() {
 
 		c.JSON(http.StatusOK, bundles)
 	})
+	r.GET("/bundles/:id", func(c *gin.Context) {
 
+		id := c.Param("id")
+
+		// Get bundle basic info
+		var bundle struct {
+			ID   string
+			Name string
+			Mood string
+		}
+
+		err := db.DB.QueryRow(
+			"SELECT id, name, mood FROM bundles WHERE id=$1",
+			id,
+		).Scan(&bundle.ID, &bundle.Name, &bundle.Mood)
+
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Bundle not found"})
+			return
+		}
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Get products inside bundle
+		query := `
+	SELECT p.id, p.name, p.price, bp.quantity
+	FROM bundle_products bp
+	JOIN products p ON p.id = bp.product_id
+	WHERE bp.bundle_id = $1;
+	`
+
+		rows, err := db.DB.Query(query, id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer rows.Close()
+
+		type ProductDetail struct {
+			ProductID string  `json:"product_id"`
+			Name      string  `json:"name"`
+			Price     float64 `json:"price"`
+			Quantity  int     `json:"quantity"`
+		}
+
+		products := []ProductDetail{}
+		var total float64
+
+		for rows.Next() {
+			var p ProductDetail
+			if err := rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Quantity); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			total += p.Price * float64(p.Quantity)
+			products = append(products, p)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id":          bundle.ID,
+			"name":        bundle.Name,
+			"mood":        bundle.Mood,
+			"total_price": total,
+			"products":    products,
+		})
+	})
+	r.POST("/bundles/:id/validate", func(c *gin.Context) {
+
+		id := c.Param("id")
+
+		query := `
+	SELECT p.id, p.stock, bp.quantity
+	FROM bundle_products bp
+	JOIN products p ON p.id = bp.product_id
+	WHERE bp.bundle_id = $1;
+	`
+
+		rows, err := db.DB.Query(query, id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer rows.Close()
+
+		type ProductStock struct {
+			ID       string
+			Stock    int
+			Quantity int
+		}
+
+		found := false
+
+		for rows.Next() {
+			found = true
+			var p ProductStock
+			if err := rows.Scan(&p.ID, &p.Stock, &p.Quantity); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			if p.Stock < p.Quantity {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"valid": false,
+					"error": "Insufficient stock for product " + p.ID,
+				})
+				return
+			}
+		}
+
+		if !found {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Bundle not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"valid":   true,
+			"message": "Stock available",
+		})
+	})
+	r.POST("/bundles/:id/deduct", func(c *gin.Context) {
+
+		id := c.Param("id")
+
+		tx, err := db.DB.Begin()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		query := `
+	SELECT p.id, p.stock, bp.quantity
+	FROM bundle_products bp
+	JOIN products p ON p.id = bp.product_id
+	WHERE bp.bundle_id = $1;
+	`
+
+		rows, err := tx.Query(query, id)
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer rows.Close()
+
+		type ProductStock struct {
+			ID       string
+			Stock    int
+			Quantity int
+		}
+
+		products := []ProductStock{}
+
+		for rows.Next() {
+			var p ProductStock
+			if err := rows.Scan(&p.ID, &p.Stock, &p.Quantity); err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			products = append(products, p)
+		}
+
+		if len(products) == 0 {
+			tx.Rollback()
+			c.JSON(http.StatusNotFound, gin.H{"error": "Bundle not found"})
+			return
+		}
+
+		// Double check stock
+		for _, p := range products {
+			if p.Stock < p.Quantity {
+				tx.Rollback()
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Insufficient stock for product " + p.ID,
+				})
+				return
+			}
+		}
+
+		// Deduct stock
+		for _, p := range products {
+			_, err := tx.Exec(
+				"UPDATE products SET stock = stock - $1 WHERE id = $2",
+				p.Quantity, p.ID,
+			)
+
+			if err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}
+
+		if err := tx.Commit(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Stock deducted successfully",
+		})
+	})
 	r.Run(":8080")
 }
