@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/proto";
+
+service ProductService {
+  rpc ValidateBundle (BundleRequest) returns (ValidateResponse);
+  rpc DeductBundle (BundleRequest) returns (DeductResponse);
+}
+
+message BundleRequest {
+  string bundle_id = 1;
+}
+
+message ValidateResponse {
+  bool valid = 1;
+  string message = 2;
+}
+
+message DeductResponse {
+  bool success = 1;
+  string message = 2;
+}

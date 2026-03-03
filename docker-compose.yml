@@ -30,6 +30,7 @@ services:
       DB_NAME: productdb
     ports:
       - "8080:8080"
+      - "50051:50051"
 
 volumes:
   pgdata:
