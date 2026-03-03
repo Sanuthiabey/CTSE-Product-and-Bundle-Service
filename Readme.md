@@ -1,11 +1,11 @@
-# 📦Product & Bundle Service
+# 📦 Product & Bundle Service
 
 A Go-based microservice for managing products, bundles, and stock operations.
 
 Built using:
 
 - Go (Gin)
-- PostgreSQL
+- PostgreSQL (Neon Cloud)
 - Docker
 - gRPC
 - REST API
@@ -40,12 +40,13 @@ Built using:
 
 This service is part of a microservices architecture:
 
-Client → Order Service → Product Service  
+Client → API Gateway → Order Service → Product Service  
 ↳ Auth Service
 
 - Order Service calls Product Service via gRPC
 - Product Service handles stock validation & deduction
 - Authentication handled separately
+- Database hosted on Neon (serverless PostgreSQL)
 
 ---
 
@@ -53,24 +54,26 @@ Client → Order Service → Product Service
 
 - Go 1.25
 - Gin (REST API)
-- PostgreSQL 15
+- PostgreSQL (Neon)
 - gRPC
 - Docker & Docker Compose
 
 ---
 
-### 🌐 API Runs On
+## 🌐 API Runs On
 http://localhost:8080
 
-### ⚡ gRPC Runs On
-localhost:50051
+## ⚡ gRPC Runs On
+localhost:50053
 
-### 🔐 gRPC Methods
+## 🔐 gRPC Methods
 
-| Method          | Description                       |
-|-----------------|-----------------------------------|
-| ValidateBundle  | Checks stock availability         |
-| DeductBundle    | Deducts stock using transaction   |
+| Method          | Description                     |
+|-----------------|---------------------------------|
+| ValidateBundle  | Checks stock availability       |
+| DeductBundle    | Deducts stock using transaction |
+
+---
 
 ## 📂 Project Structure
 
