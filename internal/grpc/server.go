@@ -144,7 +144,7 @@ func (s *server) DeductBundle(ctx context.Context, req *pb.BundleRequest) (*pb.D
 // -----------------------------
 func StartGRPCServer() {
 
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", ":50053")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
