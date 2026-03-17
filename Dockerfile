@@ -9,6 +9,6 @@ COPY . .
 
 RUN go build -o product-service cmd/server/main.go
 
-EXPOSE 8080
+EXPOSE 8080 50053
 
 CMD ["./product-service"]
