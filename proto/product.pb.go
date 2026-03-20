@@ -169,6 +169,268 @@ func (x *DeductResponse) GetMessage() string {
 	return ""
 }
 
+// Stock Validation Messages
+type StockRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProductId     string                 `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	Quantity      int32                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StockRequest) Reset() {
+	*x = StockRequest{}
+	mi := &file_proto_product_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StockRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StockRequest) ProtoMessage() {}
+
+func (x *StockRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_product_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StockRequest.ProtoReflect.Descriptor instead.
+func (*StockRequest) Descriptor() ([]byte, []int) {
+	return file_proto_product_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StockRequest) GetProductId() string {
+	if x != nil {
+		return x.ProductId
+	}
+	return ""
+}
+
+func (x *StockRequest) GetQuantity() int32 {
+	if x != nil {
+		return x.Quantity
+	}
+	return 0
+}
+
+type StockValidateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Available     bool                   `protobuf:"varint,1,opt,name=available,proto3" json:"available,omitempty"`
+	CurrentStock  int32                  `protobuf:"varint,2,opt,name=current_stock,json=currentStock,proto3" json:"current_stock,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StockValidateResponse) Reset() {
+	*x = StockValidateResponse{}
+	mi := &file_proto_product_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StockValidateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StockValidateResponse) ProtoMessage() {}
+
+func (x *StockValidateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_product_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StockValidateResponse.ProtoReflect.Descriptor instead.
+func (*StockValidateResponse) Descriptor() ([]byte, []int) {
+	return file_proto_product_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StockValidateResponse) GetAvailable() bool {
+	if x != nil {
+		return x.Available
+	}
+	return false
+}
+
+func (x *StockValidateResponse) GetCurrentStock() int32 {
+	if x != nil {
+		return x.CurrentStock
+	}
+	return 0
+}
+
+func (x *StockValidateResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// Stock Reduction Messages
+type StockItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProductId     string                 `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	Quantity      int32                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StockItem) Reset() {
+	*x = StockItem{}
+	mi := &file_proto_product_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StockItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StockItem) ProtoMessage() {}
+
+func (x *StockItem) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_product_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StockItem.ProtoReflect.Descriptor instead.
+func (*StockItem) Descriptor() ([]byte, []int) {
+	return file_proto_product_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *StockItem) GetProductId() string {
+	if x != nil {
+		return x.ProductId
+	}
+	return ""
+}
+
+func (x *StockItem) GetQuantity() int32 {
+	if x != nil {
+		return x.Quantity
+	}
+	return 0
+}
+
+type StockReductionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*StockItem           `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StockReductionRequest) Reset() {
+	*x = StockReductionRequest{}
+	mi := &file_proto_product_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StockReductionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StockReductionRequest) ProtoMessage() {}
+
+func (x *StockReductionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_product_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StockReductionRequest.ProtoReflect.Descriptor instead.
+func (*StockReductionRequest) Descriptor() ([]byte, []int) {
+	return file_proto_product_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *StockReductionRequest) GetItems() []*StockItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type StockReductionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StockReductionResponse) Reset() {
+	*x = StockReductionResponse{}
+	mi := &file_proto_product_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StockReductionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StockReductionResponse) ProtoMessage() {}
+
+func (x *StockReductionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_product_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StockReductionResponse.ProtoReflect.Descriptor instead.
+func (*StockReductionResponse) Descriptor() ([]byte, []int) {
+	return file_proto_product_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *StockReductionResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *StockReductionResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_proto_product_proto protoreflect.FileDescriptor
 
 const file_proto_product_proto_rawDesc = "" +
@@ -181,10 +443,29 @@ const file_proto_product_proto_rawDesc = "" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"D\n" +
 	"\x0eDeductResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2\x96\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"I\n" +
+	"\fStockRequest\x12\x1d\n" +
+	"\n" +
+	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1a\n" +
+	"\bquantity\x18\x02 \x01(\x05R\bquantity\"t\n" +
+	"\x15StockValidateResponse\x12\x1c\n" +
+	"\tavailable\x18\x01 \x01(\bR\tavailable\x12#\n" +
+	"\rcurrent_stock\x18\x02 \x01(\x05R\fcurrentStock\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"F\n" +
+	"\tStockItem\x12\x1d\n" +
+	"\n" +
+	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1a\n" +
+	"\bquantity\x18\x02 \x01(\x05R\bquantity\"A\n" +
+	"\x15StockReductionRequest\x12(\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.product.StockItemR\x05items\"L\n" +
+	"\x16StockReductionResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\xae\x02\n" +
 	"\x0eProductService\x12C\n" +
 	"\x0eValidateBundle\x12\x16.product.BundleRequest\x1a\x19.product.ValidateResponse\x12?\n" +
-	"\fDeductBundle\x12\x16.product.BundleRequest\x1a\x17.product.DeductResponseB>Z<github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/protob\x06proto3"
+	"\fDeductBundle\x12\x16.product.BundleRequest\x1a\x17.product.DeductResponse\x12F\n" +
+	"\rValidateStock\x12\x15.product.StockRequest\x1a\x1e.product.StockValidateResponse\x12N\n" +
+	"\vReduceStock\x12\x1e.product.StockReductionRequest\x1a\x1f.product.StockReductionResponseB>Z<github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/protob\x06proto3"
 
 var (
 	file_proto_product_proto_rawDescOnce sync.Once
@@ -198,22 +479,32 @@ func file_proto_product_proto_rawDescGZIP() []byte {
 	return file_proto_product_proto_rawDescData
 }
 
-var file_proto_product_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_product_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_proto_product_proto_goTypes = []any{
-	(*BundleRequest)(nil),    // 0: product.BundleRequest
-	(*ValidateResponse)(nil), // 1: product.ValidateResponse
-	(*DeductResponse)(nil),   // 2: product.DeductResponse
+	(*BundleRequest)(nil),          // 0: product.BundleRequest
+	(*ValidateResponse)(nil),       // 1: product.ValidateResponse
+	(*DeductResponse)(nil),         // 2: product.DeductResponse
+	(*StockRequest)(nil),           // 3: product.StockRequest
+	(*StockValidateResponse)(nil),  // 4: product.StockValidateResponse
+	(*StockItem)(nil),              // 5: product.StockItem
+	(*StockReductionRequest)(nil),  // 6: product.StockReductionRequest
+	(*StockReductionResponse)(nil), // 7: product.StockReductionResponse
 }
 var file_proto_product_proto_depIdxs = []int32{
-	0, // 0: product.ProductService.ValidateBundle:input_type -> product.BundleRequest
-	0, // 1: product.ProductService.DeductBundle:input_type -> product.BundleRequest
-	1, // 2: product.ProductService.ValidateBundle:output_type -> product.ValidateResponse
-	2, // 3: product.ProductService.DeductBundle:output_type -> product.DeductResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	5, // 0: product.StockReductionRequest.items:type_name -> product.StockItem
+	0, // 1: product.ProductService.ValidateBundle:input_type -> product.BundleRequest
+	0, // 2: product.ProductService.DeductBundle:input_type -> product.BundleRequest
+	3, // 3: product.ProductService.ValidateStock:input_type -> product.StockRequest
+	6, // 4: product.ProductService.ReduceStock:input_type -> product.StockReductionRequest
+	1, // 5: product.ProductService.ValidateBundle:output_type -> product.ValidateResponse
+	2, // 6: product.ProductService.DeductBundle:output_type -> product.DeductResponse
+	4, // 7: product.ProductService.ValidateStock:output_type -> product.StockValidateResponse
+	7, // 8: product.ProductService.ReduceStock:output_type -> product.StockReductionResponse
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_product_proto_init() }
@@ -227,7 +518,7 @@ func file_proto_product_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_product_proto_rawDesc), len(file_proto_product_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

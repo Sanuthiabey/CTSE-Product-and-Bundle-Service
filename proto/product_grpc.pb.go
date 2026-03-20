@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ProductService_ValidateBundle_FullMethodName = "/product.ProductService/ValidateBundle"
 	ProductService_DeductBundle_FullMethodName   = "/product.ProductService/DeductBundle"
+	ProductService_ValidateStock_FullMethodName  = "/product.ProductService/ValidateStock"
+	ProductService_ReduceStock_FullMethodName    = "/product.ProductService/ReduceStock"
 )
 
 // ProductServiceClient is the client API for ProductService service.
@@ -29,6 +31,8 @@ const (
 type ProductServiceClient interface {
 	ValidateBundle(ctx context.Context, in *BundleRequest, opts ...grpc.CallOption) (*ValidateResponse, error)
 	DeductBundle(ctx context.Context, in *BundleRequest, opts ...grpc.CallOption) (*DeductResponse, error)
+	ValidateStock(ctx context.Context, in *StockRequest, opts ...grpc.CallOption) (*StockValidateResponse, error)
+	ReduceStock(ctx context.Context, in *StockReductionRequest, opts ...grpc.CallOption) (*StockReductionResponse, error)
 }
 
 type productServiceClient struct {
@@ -59,12 +63,34 @@ func (c *productServiceClient) DeductBundle(ctx context.Context, in *BundleReque
 	return out, nil
 }
 
+func (c *productServiceClient) ValidateStock(ctx context.Context, in *StockRequest, opts ...grpc.CallOption) (*StockValidateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StockValidateResponse)
+	err := c.cc.Invoke(ctx, ProductService_ValidateStock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) ReduceStock(ctx context.Context, in *StockReductionRequest, opts ...grpc.CallOption) (*StockReductionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StockReductionResponse)
+	err := c.cc.Invoke(ctx, ProductService_ReduceStock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServiceServer is the server API for ProductService service.
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility.
 type ProductServiceServer interface {
 	ValidateBundle(context.Context, *BundleRequest) (*ValidateResponse, error)
 	DeductBundle(context.Context, *BundleRequest) (*DeductResponse, error)
+	ValidateStock(context.Context, *StockRequest) (*StockValidateResponse, error)
+	ReduceStock(context.Context, *StockReductionRequest) (*StockReductionResponse, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedProductServiceServer) ValidateBundle(context.Context, *Bundle
 }
 func (UnimplementedProductServiceServer) DeductBundle(context.Context, *BundleRequest) (*DeductResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeductBundle not implemented")
+}
+func (UnimplementedProductServiceServer) ValidateStock(context.Context, *StockRequest) (*StockValidateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ValidateStock not implemented")
+}
+func (UnimplementedProductServiceServer) ReduceStock(context.Context, *StockReductionRequest) (*StockReductionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReduceStock not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 func (UnimplementedProductServiceServer) testEmbeddedByValue()                        {}
@@ -138,6 +170,42 @@ func _ProductService_DeductBundle_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_ValidateStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).ValidateStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_ValidateStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).ValidateStock(ctx, req.(*StockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_ReduceStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StockReductionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).ReduceStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_ReduceStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).ReduceStock(ctx, req.(*StockReductionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeductBundle",
 			Handler:    _ProductService_DeductBundle_Handler,
+		},
+		{
+			MethodName: "ValidateStock",
+			Handler:    _ProductService_ValidateStock_Handler,
+		},
+		{
+			MethodName: "ReduceStock",
+			Handler:    _ProductService_ReduceStock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

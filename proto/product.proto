@@ -7,6 +7,8 @@ option go_package = "github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/prot
 service ProductService {
   rpc ValidateBundle (BundleRequest) returns (ValidateResponse);
   rpc DeductBundle (BundleRequest) returns (DeductResponse);
+  rpc ValidateStock (StockRequest) returns (StockValidateResponse);
+  rpc ReduceStock (StockReductionRequest) returns (StockReductionResponse);
 }
 
 message BundleRequest {
@@ -19,6 +21,33 @@ message ValidateResponse {
 }
 
 message DeductResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Stock Validation Messages
+message StockRequest {
+  string product_id = 1;
+  int32 quantity = 2;
+}
+
+message StockValidateResponse {
+  bool available = 1;
+  int32 current_stock = 2;
+  string message = 3;
+}
+
+// Stock Reduction Messages
+message StockItem {
+  string product_id = 1;
+  int32 quantity = 2;
+}
+
+message StockReductionRequest {
+  repeated StockItem items = 1;
+}
+
+message StockReductionResponse {
   bool success = 1;
   string message = 2;
 }

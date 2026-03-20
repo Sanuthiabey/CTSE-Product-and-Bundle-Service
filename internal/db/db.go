@@ -47,9 +47,7 @@ func Connect() {
 
 func createTables() {
 
-	// ------------------------
 	// PRODUCTS TABLE
-	// ------------------------
 	createProductsTable := `
 	CREATE TABLE IF NOT EXISTS products (
     id TEXT PRIMARY KEY,
@@ -70,9 +68,7 @@ func createTables() {
 
 	log.Println("Products table ready")
 
-	// ------------------------
 	// BUNDLES TABLE
-	// ------------------------
 	createBundlesTable := `
 	CREATE TABLE IF NOT EXISTS bundles (
 		id TEXT PRIMARY KEY,
@@ -85,9 +81,7 @@ func createTables() {
 		log.Fatal("Failed to create bundles table:", err)
 	}
 
-	// ------------------------
 	// BUNDLE_PRODUCTS TABLE
-	// ------------------------
 	createBundleProductsTable := `
 	CREATE TABLE IF NOT EXISTS bundle_products (
 		bundle_id TEXT REFERENCES bundles(id) ON DELETE CASCADE,
