@@ -15,9 +15,13 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/admin/products": {
+        "/admin/bundles": {
             "post": {
-                "description": "Create a new product (Admin only)",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -25,17 +29,31 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Products"
+                    "Bundles"
                 ],
-                "summary": "Create a new product",
+                "summary": "Create bundle",
                 "parameters": [
                     {
-                        "description": "Product",
-                        "name": "product",
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Admin role",
+                        "name": "Role",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bundle",
+                        "name": "bundle",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Product"
+                            "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest"
                         }
                     }
                 ],
@@ -43,23 +61,32 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Product"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle"
                         }
                     }
                 }
             }
         },
+        "/admin/products": {
+            "post": {
+                "responses": {}
+            }
+        },
         "/admin/products/{id}": {
             "put": {
+                "responses": {}
+            },
+            "delete": {
+                "responses": {}
+            }
+        },
+        "/admin/stock/reduce": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -67,51 +94,33 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Products"
+                    "Stock"
                 ],
-                "summary": "Update product",
+                "summary": "Reduce stock",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
-                        "description": "Updated Product",
-                        "name": "product",
+                        "type": "string",
+                        "description": "Admin role",
+                        "name": "Role",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Stock reduction",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Product"
+                            "type": "object",
+                            "additionalProperties": true
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Product"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Products"
-                ],
-                "summary": "Delete product",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -119,8 +128,42 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/bundles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bundles"
+                ],
+                "summary": "Get all bundles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle"
                             }
                         }
                     }
@@ -157,7 +200,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Product"
+                                "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product"
                             }
                         }
                     }
@@ -186,7 +229,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Product"
+                            "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product"
                         }
                     },
                     "404": {
@@ -200,10 +243,113 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/stock/validate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stock"
+                ],
+                "summary": "Validate stock",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Stock request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "models.Product": {
+        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "mood": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct"
+                    }
+                }
+            }
+        },
+        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "products"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "mood": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct"
+                    }
+                }
+            }
+        },
+        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product": {
             "type": "object",
             "properties": {
                 "category": {
@@ -237,6 +383,13 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

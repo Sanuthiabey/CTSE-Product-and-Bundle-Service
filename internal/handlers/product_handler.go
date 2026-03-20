@@ -16,9 +16,20 @@ import (
 // @Tags Products
 // @Accept json
 // @Produce json
+
+// Headers
+// @Param Authorization header string true "Bearer token"
+// @Param Role header string true "User role (admin)"
+// @Security BearerAuth
+
+// Body
 // @Param product body models.Product true "Product"
+
+// Responses
 // @Success 201 {object} models.Product
 // @Failure 400 {object} map[string]string
+
+// Route
 // @Router /admin/products [post]
 func CreateProduct(c *gin.Context) {
 
@@ -93,9 +104,20 @@ func GetProduct(c *gin.Context) {
 // @Tags Products
 // @Accept json
 // @Produce json
+
+// Headers
+// @Param Authorization header string true "Bearer token"
+// @Param Role header string true "User role (admin)"
+// @Security BearerAuth
+
+// Params
 // @Param id path string true "Product ID"
 // @Param product body models.Product true "Updated Product"
+
+// Response
 // @Success 200 {object} models.Product
+
+// Route
 // @Router /admin/products/{id} [put]
 func UpdateProduct(c *gin.Context) {
 
@@ -124,8 +146,19 @@ func UpdateProduct(c *gin.Context) {
 // @Summary Delete product
 // @Tags Products
 // @Produce json
+
+// Headers
+// @Param Authorization header string true "Bearer token"
+// @Param Role header string true "User role (admin)"
+// @Security BearerAuth
+
+// Params
 // @Param id path string true "Product ID"
+
+// Response
 // @Success 200 {object} map[string]string
+
+// Route
 // @Router /admin/products/{id} [delete]
 func DeleteProduct(c *gin.Context) {
 

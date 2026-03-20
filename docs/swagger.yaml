@@ -1,6 +1,43 @@
 basePath: /
 definitions:
-  models.Product:
+  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle:
+    properties:
+      id:
+        type: string
+      mood:
+        type: string
+      name:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct'
+        type: array
+    type: object
+  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest:
+    properties:
+      id:
+        type: string
+      mood:
+        type: string
+      name:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct'
+        type: array
+    required:
+    - id
+    - name
+    - products
+    type: object
+  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product:
     properties:
       category:
         type: string
@@ -30,79 +67,104 @@ info:
   title: Product & Bundle Service API
   version: "1.0"
 paths:
-  /admin/products:
+  /admin/bundles:
     post:
       consumes:
       - application/json
-      description: Create a new product (Admin only)
       parameters:
-      - description: Product
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Admin role
+        in: header
+        name: Role
+        required: true
+        type: string
+      - description: Bundle
         in: body
-        name: product
+        name: bundle
         required: true
         schema:
-          $ref: '#/definitions/models.Product'
+          $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Product'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create a new product
+            $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle'
+      security:
+      - BearerAuth: []
+      summary: Create bundle
       tags:
-      - Products
+      - Bundles
+  /admin/products:
+    post:
+      responses: {}
   /admin/products/{id}:
     delete:
-      parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Delete product
-      tags:
-      - Products
+      responses: {}
     put:
+      responses: {}
+  /admin/stock/reduce:
+    post:
       consumes:
       - application/json
       parameters:
-      - description: Product ID
-        in: path
-        name: id
+      - description: Bearer token
+        in: header
+        name: Authorization
         required: true
         type: string
-      - description: Updated Product
+      - description: Admin role
+        in: header
+        name: Role
+        required: true
+        type: string
+      - description: Stock reduction
         in: body
-        name: product
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Product'
+          additionalProperties: true
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Product'
-      summary: Update product
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reduce stock
       tags:
-      - Products
+      - Stock
+  /api/bundles:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get all bundles
+      tags:
+      - Bundles
   /api/products:
     get:
       description: Retrieve list of products
@@ -122,7 +184,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Product'
+              $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product'
             type: array
       summary: Get all products
       tags:
@@ -141,7 +203,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Product'
+            $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product'
         "404":
           description: Not Found
           schema:
@@ -151,4 +213,39 @@ paths:
       summary: Get product by ID
       tags:
       - Products
+  /api/stock/validate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Stock request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Validate stock
+      tags:
+      - Stock
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -3,7 +3,9 @@
 // @description API for managing products and bundles
 // @host localhost:8080
 // @BasePath /
-
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -27,7 +29,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("../../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("No .env file found")
 	}
@@ -84,7 +86,13 @@ func main() {
 		admin.PUT("/products/:id", handlers.UpdateProduct)
 		admin.DELETE("/products/:id", handlers.DeleteProduct)
 	}
+	api.GET("/bundles", handlers.GetBundles)
 
+	admin.POST("/bundles", handlers.CreateBundle)
+
+	// stock
+	api.POST("/stock/validate", handlers.ValidateStock)
+	admin.POST("/stock/reduce", handlers.ReduceStock)
 	// START HTTP SERVER
 	r.Run(":8080")
 }
