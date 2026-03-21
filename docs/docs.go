@@ -53,7 +53,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest"
+                            "$ref": "#/definitions/models.CreateBundleRequest"
                         }
                     }
                 ],
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle"
+                            "$ref": "#/definitions/models.Bundle"
                         }
                     }
                 }
@@ -69,15 +69,191 @@ const docTemplate = `{
         },
         "/admin/products": {
             "post": {
-                "responses": {}
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Create a new product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "admin",
+                        "name": "Role",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Product",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/admin/products/{id}": {
             "put": {
-                "responses": {}
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Update product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "admin",
+                        "name": "Role",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated Product",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Product"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             },
             "delete": {
-                "responses": {}
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin only",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Delete product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "admin",
+                        "name": "Role",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/admin/stock/reduce": {
@@ -163,7 +339,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle"
+                                "$ref": "#/definitions/models.Bundle"
                             }
                         }
                     }
@@ -172,7 +348,7 @@ const docTemplate = `{
         },
         "/api/products": {
             "get": {
-                "description": "Retrieve list of products",
+                "description": "Public endpoint",
                 "produces": [
                     "application/json"
                 ],
@@ -200,7 +376,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product"
+                                "$ref": "#/definitions/models.Product"
                             }
                         }
                     }
@@ -209,6 +385,7 @@ const docTemplate = `{
         },
         "/api/products/{id}": {
             "get": {
+                "description": "Public endpoint",
                 "produces": [
                     "application/json"
                 ],
@@ -229,7 +406,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product"
+                            "$ref": "#/definitions/models.Product"
                         }
                     },
                     "404": {
@@ -293,7 +470,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle": {
+        "models.Bundle": {
             "type": "object",
             "properties": {
                 "id": {
@@ -308,12 +485,12 @@ const docTemplate = `{
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct"
+                        "$ref": "#/definitions/models.BundleProduct"
                     }
                 }
             }
         },
-        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct": {
+        "models.BundleProduct": {
             "type": "object",
             "properties": {
                 "product_id": {
@@ -324,7 +501,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest": {
+        "models.CreateBundleRequest": {
             "type": "object",
             "required": [
                 "id",
@@ -344,12 +521,12 @@ const docTemplate = `{
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct"
+                        "$ref": "#/definitions/models.BundleProduct"
                     }
                 }
             }
         },
-        "github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product": {
+        "models.Product": {
             "type": "object",
             "properties": {
                 "category": {

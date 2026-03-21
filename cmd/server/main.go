@@ -9,16 +9,15 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-
 	"github.com/joho/godotenv"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	"log"
 
 	_ "github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/docs"
 
@@ -29,26 +28,40 @@ import (
 )
 
 func main() {
+
+	// ==============================
+	// LOAD ENV
+	// ==============================
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("No .env file found")
 	}
-	// DATABASE CONNECTION
+
+	// ==============================
+	// DATABASE
+	// ==============================
 	db.Connect()
 
-	// START gRPC SERVER
-
+	// ==============================
+	// START gRPC
+	// ==============================
 	go grpcServer.StartGRPCServer()
 
-	// GIN SERVER
+	// ==============================
+	// GIN SETUP
+	// ==============================
 	r := gin.New()
-
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	// Swagger UI
+
+	// ==============================
+	// SWAGGER
+	// ==============================
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// CORS CONFIG
+	// ==============================
+	// CORS
+	// ==============================
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -58,7 +71,9 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	// ==============================
 	// HEALTH CHECK
+	// ==============================
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"service": "product-and-bundle-service",
@@ -66,33 +81,46 @@ func main() {
 		})
 	})
 
-	// PUBLIC ROUTES
-	api := r.Group("/api")
-	api.Use(middleware.AuthRequired())
-
+	// =====================================================
+	// 🔓 PUBLIC ROUTES (NO AUTH)
+	// =====================================================
+	public := r.Group("/api")
 	{
-		// All logged users
-		api.GET("/products", handlers.GetProducts)
-		api.GET("/products/:id", handlers.GetProduct)
+		public.GET("/products", handlers.GetProducts)
+		public.GET("/products/:id", handlers.GetProduct)
+		public.GET("/bundles", handlers.GetBundles)
 	}
 
-	// ADMIN ROUTES
+	// =====================================================
+	// 🔐 AUTH REQUIRED ROUTES
+	// =====================================================
+	protected := r.Group("/api")
+	protected.Use(middleware.AuthRequired())
+	{
+		protected.POST("/stock/validate", handlers.ValidateStock)
+	}
+
+	// =====================================================
+	// 👑 ADMIN ROUTES
+	// =====================================================
 	admin := r.Group("/admin")
 	admin.Use(middleware.AuthRequired())
 	admin.Use(middleware.AdminOnly())
-
 	{
+		// PRODUCTS
 		admin.POST("/products", handlers.CreateProduct)
 		admin.PUT("/products/:id", handlers.UpdateProduct)
 		admin.DELETE("/products/:id", handlers.DeleteProduct)
+
+		// BUNDLES
+		admin.POST("/bundles", handlers.CreateBundle)
+
+		// STOCK
+		admin.POST("/stock/reduce", handlers.ReduceStock)
 	}
-	api.GET("/bundles", handlers.GetBundles)
 
-	admin.POST("/bundles", handlers.CreateBundle)
-
-	// stock
-	api.POST("/stock/validate", handlers.ValidateStock)
-	admin.POST("/stock/reduce", handlers.ReduceStock)
-	// START HTTP SERVER
+	// ==============================
+	// START SERVER
+	// ==============================
 	r.Run(":8080")
 }

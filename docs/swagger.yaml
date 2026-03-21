@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle:
+  models.Bundle:
     properties:
       id:
         type: string
@@ -10,17 +10,17 @@ definitions:
         type: string
       products:
         items:
-          $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct'
+          $ref: '#/definitions/models.BundleProduct'
         type: array
     type: object
-  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct:
+  models.BundleProduct:
     properties:
       product_id:
         type: string
       quantity:
         type: integer
     type: object
-  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest:
+  models.CreateBundleRequest:
     properties:
       id:
         type: string
@@ -30,14 +30,14 @@ definitions:
         type: string
       products:
         items:
-          $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.BundleProduct'
+          $ref: '#/definitions/models.BundleProduct'
         type: array
     required:
     - id
     - name
     - products
     type: object
-  github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product:
+  models.Product:
     properties:
       category:
         type: string
@@ -87,14 +87,14 @@ paths:
         name: bundle
         required: true
         schema:
-          $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.CreateBundleRequest'
+          $ref: '#/definitions/models.CreateBundleRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle'
+            $ref: '#/definitions/models.Bundle'
       security:
       - BearerAuth: []
       summary: Create bundle
@@ -102,12 +102,127 @@ paths:
       - Bundles
   /admin/products:
     post:
-      responses: {}
+      consumes:
+      - application/json
+      description: Admin only
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: admin
+        in: header
+        name: Role
+        required: true
+        type: string
+      - description: Product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+      tags:
+      - Products
   /admin/products/{id}:
     delete:
-      responses: {}
+      description: Admin only
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: admin
+        in: header
+        name: Role
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete product
+      tags:
+      - Products
     put:
-      responses: {}
+      consumes:
+      - application/json
+      description: Admin only
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: admin
+        in: header
+        name: Role
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated Product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update product
+      tags:
+      - Products
   /admin/stock/reduce:
     post:
       consumes:
@@ -158,7 +273,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Bundle'
+              $ref: '#/definitions/models.Bundle'
             type: array
       security:
       - BearerAuth: []
@@ -167,7 +282,7 @@ paths:
       - Bundles
   /api/products:
     get:
-      description: Retrieve list of products
+      description: Public endpoint
       parameters:
       - description: limit
         in: query
@@ -184,13 +299,14 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product'
+              $ref: '#/definitions/models.Product'
             type: array
       summary: Get all products
       tags:
       - Products
   /api/products/{id}:
     get:
+      description: Public endpoint
       parameters:
       - description: Product ID
         in: path
@@ -203,7 +319,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Sanuthiabey_CTSE-Product-and-Bundle-Service_internal_models.Product'
+            $ref: '#/definitions/models.Product'
         "404":
           description: Not Found
           schema:
