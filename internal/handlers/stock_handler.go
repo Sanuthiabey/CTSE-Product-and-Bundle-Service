@@ -39,6 +39,41 @@ func ValidateStock(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// SetStock godoc
+// @Summary Set stock (admin)
+// @Tags Stock
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param Role header string true "Admin role"
+// @Security BearerAuth
+// @Param request body object true "Stock update"
+// @Success 200 {object} map[string]interface{}
+// @Router /admin/stock/update [put]
+func SetStock(c *gin.Context) {
+
+	var req struct {
+		ProductID string `json:"product_id"`
+		Stock     int    `json:"stock"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := services.SetStock(req.ProductID, req.Stock)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Stock updated",
+	})
+}
+
 // ReduceStock godoc
 // @Summary Reduce stock
 // @Tags Stock

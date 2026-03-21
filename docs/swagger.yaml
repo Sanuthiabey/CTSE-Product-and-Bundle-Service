@@ -258,6 +258,40 @@ paths:
       summary: Reduce stock
       tags:
       - Stock
+  /admin/stock/update:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Admin role
+        in: header
+        name: Role
+        required: true
+        type: string
+      - description: Stock update
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Set stock (admin)
+      tags:
+      - Stock
   /api/bundles:
     get:
       parameters:

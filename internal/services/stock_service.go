@@ -33,6 +33,18 @@ func ValidateStock(productID string, qty int) (map[string]interface{}, error) {
 	}, nil
 }
 
+// SET STOCK (ADMIN)
+func SetStock(productID string, stock int) error {
+
+	_, err := db.DB.Exec(
+		"UPDATE products SET stock = $1 WHERE id = $2",
+		stock,
+		productID,
+	)
+
+	return err
+}
+
 // REDUCE STOCK
 func ReduceStock(items []models.StockItem) error {
 

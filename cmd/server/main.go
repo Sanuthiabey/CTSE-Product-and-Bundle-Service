@@ -117,6 +117,7 @@ func main() {
 
 		// STOCK
 		admin.POST("/stock/reduce", handlers.ReduceStock)
+		admin.PUT("/stock/update", handlers.SetStock)
 	}
 
 	// ==============================
