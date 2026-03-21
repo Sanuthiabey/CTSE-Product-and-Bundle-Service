@@ -1,0 +1,17 @@
+# IDE
+.idea/
+.vscode/
+
+# Binaries
+bin/
+*.exe
+
+# Env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/
