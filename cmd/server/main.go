@@ -119,9 +119,6 @@ func main() {
 		admin.POST("/stock/reduce", handlers.ReduceStock)
 		admin.PUT("/stock/update", handlers.SetStock)
 	}
-
-	// ==============================
 	// START SERVER
-	// ==============================
 	r.Run(":8080")
 }
