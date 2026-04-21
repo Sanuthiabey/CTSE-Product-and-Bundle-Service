@@ -2,10 +2,12 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
 	"github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/internal/db"
+	"github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/internal/services"
 	pb "github.com/Sanuthiabey/CTSE-Product-and-Bundle-Service/proto"
 
 	"google.golang.org/grpc"
@@ -13,6 +15,22 @@ import (
 
 type server struct {
 	pb.UnimplementedProductServiceServer
+}
+
+func (s *server) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.ProductResponse, error) {
+	product, err := services.GetProductByID(req.ProductId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ProductResponse{
+		Id:        product.ID,
+		Name:      product.Name,
+		Price:     product.Price,
+		MoodTag:   product.Mood,
+		Stock:     int32(product.Stock),
+		Available: product.Stock > 0,
+	}, nil
 }
 
 // -----------------------------
@@ -142,40 +160,41 @@ func (s *server) DeductBundle(ctx context.Context, req *pb.BundleRequest) (*pb.D
 // -----------------------------
 // VALIDATE STOCK
 // -----------------------------
-func (s *server) ValidateStock(ctx context.Context, req *pb.StockRequest) (*pb.StockValidateResponse, error) {
-	var currentStock int
+func (s *server) ValidateStock(ctx context.Context, req *pb.ValidateStockRequest) (*pb.ValidateStockResponse, error) {
+	unavailable := make([]*pb.UnavailableItem, 0)
 
-	query := `SELECT stock FROM products WHERE id = $1`
-	err := db.DB.QueryRow(query, req.ProductId).Scan(&currentStock)
+	for _, item := range req.Items {
+		var currentStock int
+		err := db.DB.QueryRow("SELECT stock FROM products WHERE id = $1", item.ProductId).Scan(&currentStock)
+		if err != nil {
+			unavailable = append(unavailable, &pb.UnavailableItem{
+				ProductId: item.ProductId,
+				Reason:    "Product not found",
+			})
+			continue
+		}
 
-	if err != nil {
-		return &pb.StockValidateResponse{
-			Available:    false,
-			CurrentStock: 0,
-			Message:      "Product not found",
-		}, nil
+		if currentStock < int(item.Quantity) {
+			unavailable = append(unavailable, &pb.UnavailableItem{
+				ProductId: item.ProductId,
+				Reason:    fmt.Sprintf("Insufficient stock: available=%d requested=%d", currentStock, item.Quantity),
+			})
+		}
 	}
 
-	available := currentStock >= int(req.Quantity)
-	message := "Stock available"
-	if !available {
-		message = "Insufficient stock"
-	}
-
-	return &pb.StockValidateResponse{
-		Available:    available,
-		CurrentStock: int32(currentStock),
-		Message:      message,
+	return &pb.ValidateStockResponse{
+		AllAvailable:     len(unavailable) == 0,
+		UnavailableItems: unavailable,
 	}, nil
 }
 
 // -----------------------------
 // REDUCE STOCK
 // -----------------------------
-func (s *server) ReduceStock(ctx context.Context, req *pb.StockReductionRequest) (*pb.StockReductionResponse, error) {
+func (s *server) ReduceStock(ctx context.Context, req *pb.ReduceStockRequest) (*pb.ReduceStockResponse, error) {
 	tx, err := db.DB.Begin()
 	if err != nil {
-		return &pb.StockReductionResponse{Success: false, Message: err.Error()}, nil
+		return &pb.ReduceStockResponse{Success: false, Message: err.Error()}, nil
 	}
 
 	// First, validate all items have sufficient stock
@@ -185,7 +204,7 @@ func (s *server) ReduceStock(ctx context.Context, req *pb.StockReductionRequest)
 
 		if err != nil {
 			tx.Rollback()
-			return &pb.StockReductionResponse{
+			return &pb.ReduceStockResponse{
 				Success: false,
 				Message: "Product " + item.ProductId + " not found",
 			}, nil
@@ -193,7 +212,7 @@ func (s *server) ReduceStock(ctx context.Context, req *pb.StockReductionRequest)
 
 		if currentStock < int(item.Quantity) {
 			tx.Rollback()
-			return &pb.StockReductionResponse{
+			return &pb.ReduceStockResponse{
 				Success: false,
 				Message: "Insufficient stock for product " + item.ProductId,
 			}, nil
@@ -208,15 +227,15 @@ func (s *server) ReduceStock(ctx context.Context, req *pb.StockReductionRequest)
 		)
 		if err != nil {
 			tx.Rollback()
-			return &pb.StockReductionResponse{Success: false, Message: err.Error()}, nil
+			return &pb.ReduceStockResponse{Success: false, Message: err.Error()}, nil
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return &pb.StockReductionResponse{Success: false, Message: err.Error()}, nil
+		return &pb.ReduceStockResponse{Success: false, Message: err.Error()}, nil
 	}
 
-	return &pb.StockReductionResponse{
+	return &pb.ReduceStockResponse{
 		Success: true,
 		Message: "Stock reduced successfully",
 	}, nil
