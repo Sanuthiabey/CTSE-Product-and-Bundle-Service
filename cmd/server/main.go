@@ -11,6 +11,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -62,12 +64,25 @@ func main() {
 	// ==============================
 	// CORS
 	// ==============================
+	allowedOrigins := []string{"http://localhost:3000", "http://127.0.0.1:3000"}
+	if raw := strings.TrimSpace(os.Getenv("CORS_ALLOWED_ORIGINS")); raw != "" {
+		allowedOrigins = []string{}
+		for _, origin := range strings.Split(raw, ",") {
+			o := strings.TrimSpace(origin)
+			if o != "" {
+				allowedOrigins = append(allowedOrigins, o)
+			}
+		}
+	}
+
+	log.Printf("CORS allowed origins: %v", allowedOrigins)
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
+		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
 
